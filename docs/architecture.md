@@ -1,26 +1,79 @@
 # TPO Sentinel – Architecture
 
-## Data Flow
+## End-to-End Data Flow
 
+```mermaid
+flowchart LR
+    A[Raw Claims Data] --> B[Feature Engineering]
+    B --> C[ML Models]
+    C --> D[Agent Tools]
+    D --> E[LLM Reasoning]
+    E --> F[Recommendation]
 ```
-[Kaggle CSV / Synthetic] --> features.py --> [provider_features.parquet, timeseries.parquet]
-                                                  |
-            ┌─────────────────────────────────────┼─────────────────────────────┐
-            ▼                                     ▼                             ▼
-    classification.py                      prediction.py               clustering.py
-    (XGBoost FWA)                          (GBM regression)            (KMeans peer groups)
-            |                                     |                             |
-    inference.py                                  |                             |
-    (SHAP)                                        |                             |
-            └──────────────────────────────┬──────┘─────────────────────────────┘
-                                           ▼
-                                      tools.py  <── anomaly.py (STL+IF+z-score)
-                                           |
-                                      agent.py (chain-of-thought)
-                                           |
-                                      llm.py (OpenAI / Anthropic / fallback)
-                                           |
-                                   streamlit_app.py
+
+## Layered Architecture
+
+```mermaid
+flowchart TB
+    subgraph dataLayer ["Data Layer"]
+        RD["Medicare Claims Dataset"]
+        SF["Synthetic Fallback"]
+    end
+
+    subgraph featureLayer ["Feature Engineering"]
+        FE["Provider Aggregates"]
+        TS["Monthly Billing Time-Series"]
+    end
+
+    subgraph mlLayer ["ML Layer — TPO Techniques"]
+        direction TB
+        subgraph paymentML ["Payment"]
+            CLF["Classification — Fraud Probability"]
+            SHAP["Inference — SHAP Explainability"]
+        end
+        subgraph treatmentML ["Treatment"]
+            REG["Prediction — Reimbursement & Clinical Risk"]
+        end
+        subgraph opsML ["Operations"]
+            CLU["Clustering — Peer Groups"]
+            ANO["Time-Series Anomaly Detection"]
+        end
+    end
+
+    subgraph agentLayer ["Agentic Layer"]
+        TOOLS["ML Tool Registry"]
+        COT["Chain-of-Thought Orchestrator"]
+        LLM["Generative AI — Groq / Fallback"]
+        TOOLS --> COT --> LLM
+    end
+
+    subgraph uiLayer ["UI Layer"]
+        UI["Streamlit Dashboard — 5 Tabs + Live Agent Chain"]
+    end
+
+    RD --> FE
+    SF --> FE
+    RD --> TS
+    SF --> TS
+
+    FE --> CLF
+    FE --> REG
+    FE --> CLU
+    TS --> ANO
+    CLF --> SHAP
+
+    CLF --> TOOLS
+    SHAP --> TOOLS
+    REG --> TOOLS
+    CLU --> TOOLS
+    ANO --> TOOLS
+
+    LLM --> UI
+    CLF -.-> UI
+    SHAP -.-> UI
+    REG -.-> UI
+    CLU -.-> UI
+    ANO -.-> UI
 ```
 
 ## Technique → TPO Mapping

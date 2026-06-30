@@ -26,4 +26,7 @@ env/
 *.egg-info/
 dist/
 build/
-.ipynb_checkpoints/
+# Generator scripts (final deliverables committed separately)
+deliverables/**/generate_*.py
+deliverables/report/references.md
+deliverables/**/__pycache__/

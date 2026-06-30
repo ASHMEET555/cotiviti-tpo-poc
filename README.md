@@ -20,6 +20,27 @@
 
 ---
 
+## Submission Deliverables
+
+| Deliverable | Location |
+|---|---|
+| Written report (APA, Word) | [deliverables/report/Report.docx](deliverables/report/Report.docx) |
+| Slide presentation | [deliverables/slides/Presentation.pptx](deliverables/slides/Presentation.pptx) |
+| POC demo code | This repository (`src/`, `scripts/`) |
+| Live dashboard | [Streamlit Cloud](https://share.streamlit.io) or run locally (see Quick Start) |
+
+### Problem statement
+
+![Healthcare fraud, waste & abuse — the problem TPO Sentinel addresses](deliverables/slides/problemstaement.png)
+
+### System architecture
+
+![TPO Sentinel end-to-end architecture](deliverables/slides/tpo_sentinel_architecture.png)
+
+Interactive Mermaid diagrams and full layer breakdown: [docs/architecture.md](docs/architecture.md)
+
+---
+
 ## Quick Start
 
 ### 1. Install dependencies
@@ -69,21 +90,6 @@ streamlit run src/app/streamlit_app.py
 
 ---
 
-## Generate Deliverables
-
-```bash
-# Export charts for slides
-python scripts/make_assets.py
-
-# Generate Word report
-python deliverables/report/generate_report.py
-
-# Generate PowerPoint presentation
-python deliverables/slides/generate_slides.py
-```
-
----
-
 ## Project Structure
 
 ```
@@ -113,16 +119,14 @@ cotiviti-tpo-poc/
 │   ├── train_all.py            # train + persist all models
 │   └── make_assets.py          # export charts as PNG
 ├── deliverables/
-│   ├── report/
-│   │   ├── generate_report.py  # builds Report.docx
-│   │   └── references.md       # APA bibliography source
-│   ├── slides/
-│   │   └── generate_slides.py  # builds Presentation.pptx
-│   └── video/
-│       ├── script.md           # teleprompter script
-│       └── recording_guide.md  # how to record the MP4
-├── assets/charts/              # exported chart PNGs (gitignored)
-├── docs/architecture.md        # detailed architecture notes
+│   ├── report/Report.docx          # APA written report
+│   └── slides/
+│       ├── Presentation.pptx       # slide deck
+│       ├── problemstaement.png     # problem overview figure
+│       └── tpo_sentinel_architecture.png
+├── docs/
+│   ├── architecture.md             # Mermaid diagrams + TPO mapping
+│   └── eraser-architecture-prompt.md
 ├── .env.example
 ├── requirements.txt
 └── README.md
@@ -156,4 +160,69 @@ Then send an email to **jesus.hurtado@cotiviti.com** with:
 
 ## Architecture
 
-See [docs/architecture.md](docs/architecture.md) for a full data-flow diagram and technique descriptions.
+End-to-end flow:
+
+```mermaid
+flowchart LR
+    A[Raw Claims Data] --> B[Feature Engineering]
+    B --> C[ML Models]
+    C --> D[Agent Tools]
+    D --> E[LLM Reasoning]
+    E --> F[Recommendation]
+```
+
+Layered system (Payment · Treatment · Operations):
+
+```mermaid
+flowchart TB
+    subgraph dataLayer ["Data Layer"]
+        RD["Medicare Claims Dataset"]
+        SF["Synthetic Fallback"]
+    end
+
+    subgraph featureLayer ["Feature Engineering"]
+        FE["Provider Aggregates"]
+        TS["Monthly Billing Time-Series"]
+    end
+
+    subgraph mlLayer ["ML Layer — TPO Techniques"]
+        subgraph paymentML ["Payment"]
+            CLF["Classification — Fraud Probability"]
+            SHAP["Inference — SHAP Explainability"]
+        end
+        subgraph treatmentML ["Treatment"]
+            REG["Prediction — Reimbursement & Clinical Risk"]
+        end
+        subgraph opsML ["Operations"]
+            CLU["Clustering — Peer Groups"]
+            ANO["Time-Series Anomaly Detection"]
+        end
+    end
+
+    subgraph agentLayer ["Agentic Layer"]
+        TOOLS["ML Tool Registry"]
+        COT["Chain-of-Thought Orchestrator"]
+        LLM["Generative AI — Groq / Fallback"]
+        TOOLS --> COT --> LLM
+    end
+
+    subgraph uiLayer ["UI Layer"]
+        UI["Streamlit Dashboard"]
+    end
+
+    RD --> FE
+    SF --> FE
+    FE --> CLF
+    FE --> REG
+    FE --> CLU
+    TS --> ANO
+    CLF --> SHAP
+    CLF --> TOOLS
+    SHAP --> TOOLS
+    REG --> TOOLS
+    CLU --> TOOLS
+    ANO --> TOOLS
+    LLM --> UI
+```
+
+Full details, agent steps, and TPO mapping: [docs/architecture.md](docs/architecture.md).
