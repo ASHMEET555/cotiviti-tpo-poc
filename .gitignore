@@ -3,15 +3,23 @@ __pycache__/
 *.pyc
 *.pyo
 .DS_Store
+# Raw Kaggle CSVs stay local (large; reviewers can download or use synthetic)
 data/raw/*
-data/processed/*
 !data/raw/.gitkeep
+
+# Processed outputs ignored by default — deployment artifacts allowed below
+data/processed/*
 !data/processed/.gitkeep
+!data/processed/*.parquet
+!data/processed/models/
+!data/processed/models/**
+
 assets/charts/*
 !assets/charts/.gitkeep
 src/models/__pycache__/
 *.pkl
 *.joblib
+!data/processed/models/*.joblib
 .venv/
 venv/
 env/
