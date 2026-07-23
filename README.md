@@ -26,8 +26,9 @@
 |---|---|
 | Written report (APA, Word) | [deliverables/report/Report.docx](deliverables/report/Report.docx) |
 | Slide presentation | [deliverables/slides/Presentation.pptx](deliverables/slides/Presentation.pptx) |
+| Video presentation | [Google Drive](https://drive.google.com/file/d/1_XJzK0Mzv2tU3zJYSm5Mi-hVmVDJgviv/view?usp=sharing) |
 | POC demo code | This repository (`src/`, `scripts/`) |
-| Live dashboard | [Streamlit Cloud](https://share.streamlit.io) or run locally (see Quick Start) |
+| Live dashboard | [https://tpo-poc-agent.streamlit.app/](https://tpo-poc-agent.streamlit.app/) |
 
 ### Problem statement
 
